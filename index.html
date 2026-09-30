@@ -5,8 +5,411 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f4f7f2">
     <title>今天要做的事</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="app.js" defer></script>
+    <style>
+      :root {
+        color-scheme: light;
+        --page: #f4f7f2;
+        --surface: #ffffff;
+        --surface-soft: #f7f9f6;
+        --text: #20332e;
+        --muted: #778780;
+        --line: #e3eae4;
+        --accent: #287a62;
+        --accent-strong: #1e634f;
+        --accent-wash: #e7f2ec;
+        --danger: #b4554b;
+        --shadow: 0 24px 70px rgb(29 57 45 / 9%);
+      }
+
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --page: #17221f;
+        --surface: #202e29;
+        --surface-soft: #263630;
+        --text: #e5eee8;
+        --muted: #a1b2a9;
+        --line: #374941;
+        --accent: #83c6a7;
+        --accent-strong: #a1ddbd;
+        --accent-wash: #304c3f;
+        --danger: #e28b7e;
+        --shadow: 0 24px 70px rgb(0 0 0 / 24%);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        color: var(--text);
+        background-color: var(--page);
+        background-image: radial-gradient(var(--line) 0.7px, transparent 0.7px);
+        background-size: 22px 22px;
+        font-family: "Aptos", "Microsoft JhengHei", sans-serif;
+        transition: color 180ms ease, background-color 180ms ease;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        color: inherit;
+      }
+
+      .app-shell {
+        width: min(100% - 40px, 760px);
+        margin: 0 auto;
+        padding: 28px 0 64px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 44px;
+        margin-bottom: 58px;
+      }
+
+      .wordmark {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .wordmark-mark {
+        display: grid;
+        width: 28px;
+        height: 28px;
+        place-items: center;
+        border-radius: 8px;
+        color: var(--surface);
+        background: var(--accent);
+        font-size: 17px;
+      }
+
+      .theme-toggle {
+        display: inline-flex;
+        min-height: 40px;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: var(--surface);
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        transition: border-color 160ms ease, background-color 160ms ease;
+      }
+
+      .theme-toggle:hover {
+        border-color: var(--accent);
+      }
+
+      .theme-icon {
+        font-size: 16px;
+      }
+
+      .todo-panel {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .intro {
+        padding: 42px 48px 28px;
+      }
+
+      .eyebrow {
+        margin: 0 0 13px;
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.3px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(30px, 6vw, 42px);
+        font-weight: 750;
+        line-height: 1.2;
+      }
+
+      .title-period {
+        color: var(--accent);
+      }
+
+      .intro-copy {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .add-form {
+        display: flex;
+        gap: 10px;
+        padding: 0 48px 24px;
+      }
+
+      .add-form input {
+        width: 100%;
+        min-width: 0;
+        height: 48px;
+        padding: 0 15px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        outline: none;
+        color: var(--text);
+        background: var(--surface-soft);
+        font-size: 14px;
+        transition: border-color 160ms ease, box-shadow 160ms ease;
+      }
+
+      .add-form input::placeholder {
+        color: var(--muted);
+      }
+
+      .add-form input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-wash);
+      }
+
+      .add-button {
+        flex: 0 0 auto;
+        min-width: 88px;
+        height: 48px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 6px;
+        color: var(--surface);
+        background: var(--accent);
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 700;
+        transition: background-color 160ms ease, transform 160ms ease;
+      }
+
+      .add-button:hover {
+        background: var(--accent-strong);
+      }
+
+      .add-button:active {
+        transform: translateY(1px);
+      }
+
+      .add-button span {
+        margin-right: 3px;
+        font-size: 17px;
+        vertical-align: -1px;
+      }
+
+      .filters {
+        display: flex;
+        gap: 6px;
+        padding: 0 48px 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .filter-button {
+        min-height: 34px;
+        padding: 0 13px;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        color: var(--muted);
+        background: transparent;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
+      }
+
+      .filter-button:hover {
+        color: var(--text);
+        background: var(--surface-soft);
+      }
+
+      .filter-button.is-active {
+        border-color: var(--accent-wash);
+        color: var(--accent-strong);
+        background: var(--accent-wash);
+      }
+
+      .list-region {
+        min-height: 88px;
+        padding: 8px 48px;
+      }
+
+      .todo-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .todo-item {
+        display: flex;
+        min-height: 58px;
+        align-items: center;
+        gap: 13px;
+        border-bottom: 1px solid var(--line);
+        animation: arrive 180ms ease both;
+      }
+
+      .todo-item:last-child {
+        border-bottom: 0;
+      }
+
+      .todo-check {
+        display: grid;
+        width: 22px;
+        height: 22px;
+        flex: 0 0 22px;
+        place-items: center;
+        border: 1.5px solid var(--line);
+        border-radius: 50%;
+        color: var(--surface);
+        background: transparent;
+        cursor: pointer;
+        font-size: 13px;
+        transition: border-color 160ms ease, background-color 160ms ease;
+      }
+
+      .todo-check:hover {
+        border-color: var(--accent);
+      }
+
+      .todo-item.is-complete .todo-check {
+        border-color: var(--accent);
+        background: var(--accent);
+      }
+
+      .todo-text {
+        min-width: 0;
+        flex: 1;
+        overflow-wrap: anywhere;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .todo-item.is-complete .todo-text {
+        color: var(--muted);
+        text-decoration: line-through;
+        text-decoration-thickness: 1px;
+      }
+
+      .delete-button {
+        display: grid;
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
+        place-items: center;
+        border: 0;
+        border-radius: 5px;
+        color: var(--muted);
+        background: transparent;
+        cursor: pointer;
+        font-size: 19px;
+        opacity: 0.72;
+      }
+
+      .delete-button:hover {
+        color: var(--danger);
+        background: var(--surface-soft);
+        opacity: 1;
+      }
+
+      .empty-state {
+        margin: 0;
+        padding: 22px 0;
+        color: var(--muted);
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .list-footer {
+        display: flex;
+        min-height: 54px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 0 48px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        background: var(--surface-soft);
+        font-size: 12px;
+      }
+
+      .footer-mark {
+        text-align: right;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        overflow: hidden;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        border: 0;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        clip-path: inset(50%);
+      }
+
+      @keyframes arrive {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .app-shell {
+          width: min(100% - 28px, 760px);
+          padding-top: 18px;
+        }
+
+        .topbar {
+          margin-bottom: 34px;
+        }
+
+        .intro {
+          padding: 32px 22px 23px;
+        }
+
+        .add-form {
+          padding: 0 22px 20px;
+        }
+
+        .filters {
+          padding: 0 22px 13px;
+        }
+
+        .list-region {
+          padding-right: 22px;
+          padding-left: 22px;
+        }
+
+        .list-footer {
+          padding-right: 22px;
+          padding-left: 22px;
+        }
+      }
+    </style>
   </head>
   <body>
     <main class="app-shell">
@@ -51,5 +454,131 @@
         </footer>
       </section>
     </main>
+
+    <script>
+      const themeToggle = document.querySelector('#theme-toggle');
+      const themeIcon = themeToggle.querySelector('.theme-icon');
+      const themeLabel = themeToggle.querySelector('.theme-label');
+      const todoForm = document.querySelector('#todo-form');
+      const todoInput = document.querySelector('#todo-input');
+      const todoList = document.querySelector('#todo-list');
+      const todoCount = document.querySelector('#todo-count');
+      const emptyState = document.querySelector('#empty-state');
+      const filterButtons = document.querySelectorAll('[data-filter]');
+
+      let selectedFilter = 'all';
+      let todos = [
+        { id: crypto.randomUUID(), text: '整理桌面', completed: false },
+        { id: crypto.randomUUID(), text: '回覆信件', completed: true },
+        { id: crypto.randomUUID(), text: '完成今日任務', completed: false }
+      ];
+
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        const isDark = theme === 'dark';
+        themeIcon.textContent = isDark ? '☀️' : '🌙';
+        themeLabel.textContent = isDark ? '淺色模式' : '深色模式';
+      }
+
+      function visibleTodos() {
+        if (selectedFilter === 'active') {
+          return todos.filter((todo) => !todo.completed);
+        }
+        if (selectedFilter === 'completed') {
+          return todos.filter((todo) => todo.completed);
+        }
+        return todos;
+      }
+
+      function updateEmptyState() {
+        const messages = {
+          all: '還沒有待辦事項，先新增一件吧。',
+          active: '目前沒有未完成的事項。',
+          completed: '目前還沒有已完成的事項。'
+        };
+
+        emptyState.textContent = messages[selectedFilter];
+        emptyState.hidden = visibleTodos().length > 0;
+      }
+
+      function renderTodos() {
+        const shownTodos = visibleTodos();
+        todoList.replaceChildren();
+
+        shownTodos.forEach((todo) => {
+          const item = document.createElement('li');
+          item.className = `todo-item${todo.completed ? ' is-complete' : ''}`;
+
+          const toggleButton = document.createElement('button');
+          toggleButton.className = 'todo-check';
+          toggleButton.type = 'button';
+          toggleButton.setAttribute('aria-label', todo.completed ? `標記「${todo.text}」為未完成` : `完成「${todo.text}」`);
+          toggleButton.setAttribute('aria-pressed', String(todo.completed));
+          toggleButton.textContent = todo.completed ? '✓' : '';
+          toggleButton.addEventListener('click', () => {
+            todo.completed = !todo.completed;
+            renderTodos();
+          });
+
+          const text = document.createElement('span');
+          text.className = 'todo-text';
+          text.textContent = todo.text;
+
+          const deleteButton = document.createElement('button');
+          deleteButton.className = 'delete-button';
+          deleteButton.type = 'button';
+          deleteButton.setAttribute('aria-label', `刪除「${todo.text}」`);
+          deleteButton.textContent = '×';
+          deleteButton.addEventListener('click', () => {
+            todos = todos.filter((itemTodo) => itemTodo.id !== todo.id);
+            renderTodos();
+          });
+
+          item.append(toggleButton, text, deleteButton);
+          todoList.append(item);
+        });
+
+        const remainingCount = todos.filter((todo) => !todo.completed).length;
+        todoCount.textContent = `未完成：${remainingCount} 項`;
+        updateEmptyState();
+      }
+
+      themeToggle.addEventListener('click', () => {
+        const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        applyTheme(nextTheme);
+      });
+
+      todoForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const text = todoInput.value.trim();
+        if (!text) return;
+
+        todos.unshift({ id: crypto.randomUUID(), text, completed: false });
+        todoInput.value = '';
+        selectedFilter = 'all';
+        filterButtons.forEach((button) => {
+          const isActive = button.dataset.filter === selectedFilter;
+          button.classList.toggle('is-active', isActive);
+          button.setAttribute('aria-pressed', String(isActive));
+        });
+        renderTodos();
+        todoInput.focus();
+      });
+
+      filterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          selectedFilter = button.dataset.filter;
+          filterButtons.forEach((filterButton) => {
+            const isActive = filterButton === button;
+            filterButton.classList.toggle('is-active', isActive);
+            filterButton.setAttribute('aria-pressed', String(isActive));
+          });
+          renderTodos();
+        });
+      });
+
+      applyTheme('light');
+      renderTodos();
+    </script>
   </body>
 </html>
