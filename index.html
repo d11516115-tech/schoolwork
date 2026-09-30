@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f4f7f2">
+    <title>今天要做的事</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="wordmark" href="./" aria-label="今天要做的事首頁">
+          <span class="wordmark-mark" aria-hidden="true">✓</span>
+          <span>日常清單</span>
+        </a>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切換色彩模式">
+          <span class="theme-icon" aria-hidden="true">🌙</span>
+          <span class="theme-label">深色模式</span>
+        </button>
+      </header>
+
+      <section class="todo-panel" aria-labelledby="page-title">
+        <div class="intro">
+          <p class="eyebrow">MAKE ROOM FOR WHAT MATTERS</p>
+          <h1 id="page-title">今天要做的事<span class="title-period">.</span></h1>
+          <p class="intro-copy">一件一件來，完成就打勾。</p>
+        </div>
+
+        <form class="add-form" id="todo-form">
+          <label class="visually-hidden" for="todo-input">新增待辦事項</label>
+          <input id="todo-input" name="todo" type="text" maxlength="160" placeholder="接下來想完成什麼？" autocomplete="off" required>
+          <button class="add-button" type="submit"><span aria-hidden="true">＋</span> 新增</button>
+        </form>
+
+        <nav class="filters" aria-label="待辦事項篩選">
+          <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">全部</button>
+          <button class="filter-button" type="button" data-filter="active" aria-pressed="false">未完成</button>
+          <button class="filter-button" type="button" data-filter="completed" aria-pressed="false">已完成</button>
+        </nav>
+
+        <section class="list-region" aria-label="待辦事項清單">
+          <ul class="todo-list" id="todo-list"></ul>
+          <p class="empty-state" id="empty-state" role="status" hidden></p>
+        </section>
+
+        <footer class="list-footer">
+          <span id="todo-count" aria-live="polite">未完成：0 項</span>
+          <span class="footer-mark">慢慢來，也很好。</span>
+        </footer>
+      </section>
+    </main>
+  </body>
+</html>
