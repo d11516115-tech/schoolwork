@@ -1,5 +1,6 @@
 const TASKS_KEY = "today-todo-items";
 const THEME_KEY = "today-todo-theme";
+const FILTER_KEY = "today-todo-filter";
 const todoForm = document.querySelector("#todo-form");
 const todoInput = document.querySelector("#todo-input");
 const todoList = document.querySelector("#todo-list");
@@ -9,7 +10,7 @@ const themeToggle = document.querySelector("#theme-toggle");
 const filterButtons = document.querySelectorAll("[data-filter]");
 
 let todos = readStoredTodos();
-let activeFilter = "all";
+let activeFilter = readStoredFilter();
 
 function readStoredTodos() {
   try {
@@ -20,6 +21,24 @@ function readStoredTodos() {
       : [];
   } catch {
     return [];
+  }
+}
+
+function readStoredFilter() {
+  try {
+    const storedFilter = localStorage.getItem(FILTER_KEY);
+    if (["all", "active", "completed"].includes(storedFilter)) return storedFilter;
+  } catch {
+    return "all";
+  }
+  return "all";
+}
+
+function saveActiveFilter() {
+  try {
+    localStorage.setItem(FILTER_KEY, activeFilter);
+  } catch {
+    // 儲存空間不可用時,篩選仍可在目前頁面使用。
   }
 }
 
@@ -116,6 +135,7 @@ todoForm.addEventListener("submit", (event) => {
   saveTodos();
   todoInput.value = "";
   activeFilter = "all";
+  saveActiveFilter();
   updateFilterButtons();
   renderTodos();
   todoInput.focus();
@@ -132,6 +152,7 @@ function updateFilterButtons() {
 for (const button of filterButtons) {
   button.addEventListener("click", () => {
     activeFilter = button.dataset.filter;
+    saveActiveFilter();
     updateFilterButtons();
     renderTodos();
   });
